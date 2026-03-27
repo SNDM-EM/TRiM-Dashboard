@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EM Route Operations TRiM Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root{--bg:#eef3f8;--panel:#fff;--line:#dde5ee;--text:#1f2937;--muted:#64748b;--brand:#0f4c81;--brand2:#1f6fb2;--green:#2e7d32;--amber:#ef6c00;--red:#c62828;--shadow:0 10px 24px rgba(15,23,42,.08);--radius:14px}
+    *{box-sizing:border-box} body{margin:0;font-family:Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#f4f7fb,#e9eff6);color:var(--text)}
+    header{background:linear-gradient(90deg,#003665,#0f4c81 60%,#2a74b8);color:#fff;padding:18px 24px;box-shadow:var(--shadow);position:sticky;top:0;z-index:20}
+    .header-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.title{font-size:24px;font-weight:700}
+    .user-pill{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:8px 12px;display:flex;align-items:center;gap:10px;font-size:13px}
+    .logout-btn{background:#fff;color:#0f4c81;border:none;border-radius:999px;padding:7px 12px;font-weight:600;cursor:pointer}
+    .wrap{max-width:1440px;margin:0 auto;padding:22px}.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+    .card,.panel{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid #edf2f7}
+    .card{padding:18px;border-left:6px solid var(--brand)} .card:nth-child(2){border-left-color:#5f84c5}.card:nth-child(3){border-left-color:var(--amber)}.card:nth-child(4){border-left-color:var(--red)}
+    .eyebrow{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.metric{font-size:32px;font-weight:700;margin-top:8px}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:18px 0}
+    select,input,textarea{border:1px solid #cfd8e3;border-radius:10px;padding:10px 12px;font:inherit;width:100%;background:#fff}
+    button{border:none;border-radius:10px;padding:10px 14px;background:var(--brand2);color:#fff;font-weight:600;cursor:pointer}
+    button.secondary{background:#e8f1fa;color:#0f4c81} button.ghost{background:#f8fafc;color:#334155;border:1px solid var(--line)}
+    .overview-panels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:18px 0}.panel{padding:16px}.panel h3{margin:0 0 12px 0;font-size:14px}.panel-list{font-size:13px;color:#334155;line-height:1.6}.none{color:var(--muted)}
+    .table-panel{overflow:hidden} table{width:100%;border-collapse:collapse} th,td{padding:12px 14px;border-bottom:1px solid #edf2f7;text-align:left;vertical-align:top;font-size:13px}
+    th{background:#f8fbfe;color:#475569;font-weight:700} tr.closed-row{background:#fafafa;color:#6b7280}.expand{cursor:pointer;font-weight:700;color:#0f4c81;width:20px;display:inline-block;text-align:center}
+    .badge{display:inline-block;padding:4px 9px;border-radius:999px;font-weight:700;font-size:12px}.green{background:#e8f5e9;color:var(--green)}.amber{background:#fff3e0;color:var(--amber)}.red{background:#fdecea;color:var(--red)}
+    .incident-box{background:#f8fbfe;border:1px solid #e5edf6;border-radius:12px;padding:12px;margin:8px 0}.incident-meta{font-weight:700;margin-bottom:6px}
+    .incident-flags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.flag{background:#edf4fb;color:#315a7d;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:600}
+    .scoring-panel{margin:18px 0}.scoring-head{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;padding:16px}.scoring-body{padding:0 16px 16px 16px;display:none}
+    .scoring-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;align-items:center}.muted{color:var(--muted)}
+    .login-shell{min-height:100vh;display:grid;place-items:center;padding:20px;background:linear-gradient(180deg,#eaf1f8,#dce7f3)}.login-card{width:min(420px,100%);background:#fff;border-radius:20px;padding:26px;box-shadow:var(--shadow);border:1px solid #e7eef6}
+    .login-title{font-size:26px;font-weight:800;color:#0f4c81;margin:0 0 8px 0}.sub{font-size:14px;color:var(--muted);margin-bottom:18px}
+    .row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.modal{position:fixed;inset:0;background:rgba(15,23,42,.38);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+    .modal-content{width:min(760px,100%);background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:20px;max-height:90vh;overflow:auto}
+    .section-title{margin:18px 0 8px 0;font-size:14px;font-weight:800;color:#0f4c81}.help{font-size:12px;color:var(--muted)}.hidden{display:none !important}.right{display:flex;justify-content:flex-end;gap:10px}
+    @media (max-width:1100px){.grid4,.overview-panels{grid-template-columns:repeat(2,minmax(0,1fr))}} @media (max-width:760px){.grid4,.overview-panels,.row2{grid-template-columns:1fr}.title{font-size:20px}}
+  </style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const AREAS=['EMCC (Derby)','West Hampstead','Bedford','Leicester','Kettering','Nottingham','Derby','Elstree','Kentish Town','Chesterfield'];
+const JOB_TITLES=['MOM','LOM','Signaller','SSM','IC','TRC','RCM','SNDM'];
+const INCIDENT_TYPES=['Fatality','Suicide Attempt','Person Struck by Train','Serious Injury','Major Operational Incident','Near Miss','Other'];
+const SEVERITIES=['Low','Moderate','High','Critical'];
+let state={user:null,personnel:[],overview:null,scoring:[],filters:{rag:'',incident:'',area:'',showClosed:'false'}};
+
+function escapeHtml(v=''){return String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#39;")}
+async function api(url,options={}){const res=await fetch(url,{credentials:'include',headers:{'Content-Type':'application/json',...(options.headers||{})},...options}); if(!res.ok){let msg='Request failed'; try{const b=await res.json(); msg=b.error||msg}catch{} throw new Error(msg)} if(res.status===204)return null; return res.json()}
+function canEdit(){return state.user&&['editor','super_user'].includes(state.user.role)} function canSuper(){return state.user&&state.user.role==='super_user'}
+
+function renderLogin(){document.getElementById('app').innerHTML=`<div class="login-shell"><div class="login-card"><div class="login-title">EM Route Operations TRiM Dashboard</div><div class="sub">Secure sign in for TRiM monitoring, welfare review, and audit access.</div><label>Username</label><input id="loginUsername"><label>Password</label><input id="loginPassword" type="password"><div class="right" style="margin-top:12px"><button onclick="login()">Sign in</button></div><div class="help" style="margin-top:14px">Roles supported: read_only, editor, super_user</div></div></div>`}
+
+function scoringRowsHtml(){return state.scoring.map(item=>`<div class="scoring-grid" style="margin-bottom:10px"><div><div style="font-weight:700">${escapeHtml(item.label)}</div><div class="help">Key: ${escapeHtml(item.key)}</div></div><div><input type="number" id="score_${escapeHtml(item.key)}" value="${Number(item.score_value||0)}" ${canSuper()?'':'disabled'}></div><div><select id="enabled_${escapeHtml(item.key)}" ${canSuper()?'':'disabled'}><option value="true" ${item.is_enabled?'selected':''}>On</option><option value="false" ${!item.is_enabled?'selected':''}>Off</option></select></div></div>`).join('')}
+
+function filteredPersonnel(){return state.personnel.filter(p=>{if(state.filters.showClosed!=='true'&&p.status==='closed')return false; if(state.filters.area&&p.area!==state.filters.area)return false; if(state.filters.rag&&p.rag_status!==state.filters.rag)return false; if(state.filters.incident&&!(p.incidents||[]).some(i=>i.incident_type===state.filters.incident))return false; return true})}
+
+function renderApp(){
+  const rows=filteredPersonnel();
+  const amberCount=state.personnel.filter(p=>p.rag_status==='Amber'&&p.status==='open').length;
+  const redCount=state.personnel.filter(p=>p.rag_status==='Red'&&p.status==='open').length;
+  const totalIncidents=state.overview?.total_incidents??0;
+  const totalPersonnel=state.overview?.total_personnel_open??0;
+  const highRisk=state.personnel.filter(p=>p.rag_status==='Red'&&p.status==='open').map(p=>`${p.full_name} (${p.risk_score})`);
+  const recentExposure=state.personnel.filter(p=>(p.incidents||[]).some(i=>Math.abs((Date.now()-new Date(i.incident_date))/86400000)<=30)).map(p=>p.full_name);
+  const multiExposure=state.personnel.filter(p=>(p.incidents||[]).length>=3).map(p=>`${p.full_name} (${p.total_incidents})`);
+  const breakdown=state.overview?.incident_breakdown||[];
+  document.getElementById('app').innerHTML=`
+  <header><div class="header-row"><div class="title">EM Route Operations TRiM Dashboard</div><div class="user-pill"><span><strong>${escapeHtml(state.user.display_name||state.user.username)}</strong></span><span style="opacity:.8">${escapeHtml(state.user.role)}</span><button class="logout-btn" onclick="logout()">Sign out</button></div></div></header>
+  <div class="wrap">
+    <div class="grid4">
+      <div class="card"><div class="eyebrow">Open personnel</div><div class="metric">${totalPersonnel}</div></div>
+      <div class="card"><div class="eyebrow">Total incidents logged</div><div class="metric">${totalIncidents}</div></div>
+      <div class="card"><div class="eyebrow">Amber risk personnel</div><div class="metric">${amberCount}</div></div>
+      <div class="card"><div class="eyebrow">Red risk personnel</div><div class="metric">${redCount}</div></div>
+    </div>
+    <div class="overview-panels">
+      <div class="panel"><h3>High risk personnel</h3><div class="panel-list">${highRisk.length?highRisk.map(x=>`<div>${escapeHtml(x)}</div>`).join(''):'<div class="none">None</div>'}</div></div>
+      <div class="panel"><h3>Recent exposure (30 days)</h3><div class="panel-list">${recentExposure.length?recentExposure.map(x=>`<div>${escapeHtml(x)}</div>`).join(''):'<div class="none">None</div>'}</div></div>
+      <div class="panel"><h3>Multiple incident exposure</h3><div class="panel-list">${multiExposure.length?multiExposure.map(x=>`<div>${escapeHtml(x)}</div>`).join(''):'<div class="none">None</div>'}</div></div>
+      <div class="panel"><h3>Incident type breakdown</h3><div class="panel-list">${breakdown.length?breakdown.map(x=>`<div>${escapeHtml(x.incident_type)}: ${x.count}</div>`).join(''):'<div class="none">No incidents</div>'}</div></div>
+    </div>
+    <div class="panel scoring-panel">
+      <div class="scoring-head" onclick="toggleScoring()"><div><div style="font-weight:800;color:#0f4c81">Risk scoring matrix</div><div class="help">${canSuper()?'Super users can change scores and switch factors on or off.':'Read only for your access level.'}</div></div><div id="scoringToggle">►</div></div>
+      <div class="scoring-body" id="scoringBody"><div class="scoring-grid" style="font-weight:800;margin-bottom:8px"><div>Factor</div><div>Score</div><div>Enabled</div></div>${scoringRowsHtml()}${canSuper()?'<div class="right"><button onclick="saveScoring()">Save scoring matrix</button></div>':''}</div>
+    </div>
+    <div class="toolbar">
+      <select onchange="state.filters.rag=this.value; renderApp()" style="max-width:180px"><option value="">All RAG status</option><option value="Green" ${state.filters.rag==='Green'?'selected':''}>Green</option><option value="Amber" ${state.filters.rag==='Amber'?'selected':''}>Amber</option><option value="Red" ${state.filters.rag==='Red'?'selected':''}>Red</option></select>
+      <select onchange="state.filters.incident=this.value; renderApp()" style="max-width:220px"><option value="">All incident types</option>${INCIDENT_TYPES.map(x=>`<option ${state.filters.incident===x?'selected':''}>${x}</option>`).join('')}</select>
+      <select onchange="state.filters.area=this.value; renderApp()" style="max-width:220px"><option value="">All locations</option>${AREAS.map(x=>`<option ${state.filters.area===x?'selected':''}>${x}</option>`).join('')}</select>
+      <select onchange="state.filters.showClosed=this.value; loadAll()" style="max-width:220px"><option value="false" ${state.filters.showClosed==='false'?'selected':''}>Open personnel only</option><option value="true" ${state.filters.showClosed==='true'?'selected':''}>Include closed personnel</option></select>
+      ${canEdit()?'<button onclick="openPersonModal()">Add person</button>':''}
+    </div>
+    <div class="panel table-panel">
+      <table><thead><tr><th></th><th>Name</th><th>Job title</th><th>Area</th><th>Incidents</th><th>Risk score</th><th>RAG</th><th>Status</th><th>Last incident</th><th>Actions</th></tr></thead>
+      <tbody>
+      ${rows.map(p=>`<tr class="${p.status==='closed'?'closed-row':''}"><td><span class="expand" onclick="toggleDetail('${p.id}',this)">+</span></td><td><div style="font-weight:700">${escapeHtml(p.full_name)}</div>${p.notes?`<div class="help">${escapeHtml(p.notes)}</div>`:''}</td><td>${escapeHtml(p.job_title)}</td><td>${escapeHtml(p.area)}</td><td>${p.total_incidents}</td><td>${p.risk_score + (p.individual_risk_override||0)}${p.individual_risk_override?` <span class="help">(override ${p.individual_risk_override>0?'+':''}${p.individual_risk_override})</span>`:''}</td><td><span class="badge ${String(p.rag_status).toLowerCase()}">${escapeHtml(p.rag_status)}</span></td><td>${escapeHtml(p.status)}</td><td>${p.last_incident_date?escapeHtml(p.last_incident_date):'-'}</td><td>${canEdit()?`<button class="secondary" onclick="openIncidentModal('${p.id}')">Add incident</button>`:''} ${canEdit()?`<button class="ghost" onclick="togglePersonStatus('${p.id}','${p.status==='open'?'closed':'open'}')">${p.status==='open'?'Close':'Reopen'}</button>`:''}</td></tr>
+      <tr id="detail-${p.id}" class="hidden"><td colspan="10"><div class="row2"><div><div class="section-title">Personnel notes</div><div>${p.notes?escapeHtml(p.notes):'<span class="muted">No personnel notes.</span>'}</div></div><div><div class="section-title">Individual override</div><div>${p.individual_risk_override??0}</div>${canEdit()?`<div class="right" style="margin-top:10px"><button class="ghost" onclick="openOverrideModal('${p.id}',${p.individual_risk_override??0})">Adjust override</button></div>`:''}</div></div><div class="section-title">Incident history</div>${(p.incidents||[]).length?p.incidents.map(i=>`<div class="incident-box"><div class="incident-meta">${escapeHtml(i.incident_date)} — ${escapeHtml(i.incident_type)} (${escapeHtml(i.severity)})</div><div>${escapeHtml(i.description||'No notes recorded.')}</div><div class="incident-flags">${i.on_shift?'<span class="flag">On shift</span>':''}${i.directly_involved?'<span class="flag">Directly involved</span>':''}${i.witnessed_scene?'<span class="flag">Witnessed scene</span>':''}${i.body_recovery?'<span class="flag">Body recovery</span>':''}${i.line_of_sight_only?'<span class="flag">Indirect exposure</span>':''}${i.multi_fatality?'<span class="flag">Multiple casualties</span>':''}${i.media_interest?'<span class="flag">Media interest</span>':''}${i.colleague_involved?'<span class="flag">Colleague involved</span>':''}${i.child_involved?'<span class="flag">Child involved</span>':''}<span class="flag">${escapeHtml(i.proximity_category||'Indirect')}</span></div>${canEdit()?`<div class="right" style="margin-top:10px"><button class="ghost" onclick="deleteIncident('${i.id}')">Delete incident</button></div>`:''}</div>`).join(''):'<div class="muted">No incidents recorded.</div>'}</td></tr>`).join('')}
+      </tbody></table>
+    </div>
+  </div>
+  <div class="modal" id="personModal"><div class="modal-content"><h2 style="margin-top:0">Add person</h2><div class="row2"><div><label>Full name</label><input id="p_full_name"></div><div><label>Job title</label><select id="p_job_title">${JOB_TITLES.map(x=>`<option>${x}</option>`).join('')}</select></div></div><div class="row2"><div><label>Area</label><select id="p_area">${AREAS.map(x=>`<option>${x}</option>`).join('')}</select></div><div><label>Individual risk override</label><input id="p_override" type="number" value="0"><div class="help">Use only where a local risk decision needs a manual adjustment.</div></div></div><label>Notes</label><textarea id="p_notes" rows="4"></textarea><div class="right"><button class="ghost" onclick="closeModal('personModal')">Cancel</button><button onclick="savePerson()">Save</button></div></div></div>
+  <div class="modal" id="incidentModal"><div class="modal-content"><h2 style="margin-top:0">Add incident</h2><input id="inc_person_id" type="hidden"><div class="row2"><div><label>Date</label><input id="i_date" type="date"></div><div><label>Incident type</label><select id="i_type">${INCIDENT_TYPES.map(x=>`<option>${x}</option>`).join('')}</select></div></div><div class="row2"><div><label>Severity</label><select id="i_severity">${SEVERITIES.map(x=>`<option>${x}</option>`).join('')}</select></div><div><label>Proximity</label><select id="i_proximity"><option>Direct</option><option>Close proximity</option><option>Indirect</option></select></div></div><div class="section-title">Incident factors</div><div class="row2"><label><input type="checkbox" id="f_on_shift"> On shift</label><label><input type="checkbox" id="f_directly_involved"> Directly involved</label><label><input type="checkbox" id="f_witnessed_scene"> Witnessed scene</label><label><input type="checkbox" id="f_body_recovery"> Body recovery involvement</label><label><input type="checkbox" id="f_line_of_sight_only"> Indirect / line of sight only</label><label><input type="checkbox" id="f_multi_fatality"> Multiple casualties / fatalities</label><label><input type="checkbox" id="f_media_interest"> Media interest</label><label><input type="checkbox" id="f_colleague_involved"> Colleague involved</label><label><input type="checkbox" id="f_child_involved"> Child involved</label></div><label>Description / notes</label><textarea id="i_description" rows="5"></textarea><div class="right"><button class="ghost" onclick="closeModal('incidentModal')">Cancel</button><button onclick="saveIncident()">Save incident</button></div></div></div>
+  <div class="modal" id="overrideModal"><div class="modal-content"><h2 style="margin-top:0">Adjust individual override</h2><input id="override_person_id" type="hidden"><label>Override value</label><input id="override_value" type="number"><div class="help">Positive values increase score. Negative values reduce score.</div><div class="right" style="margin-top:14px"><button class="ghost" onclick="closeModal('overrideModal')">Cancel</button><button onclick="saveOverride()">Save</button></div></div></div>`}
+
+function toggleScoring(){const body=document.getElementById('scoringBody');const icon=document.getElementById('scoringToggle');const open=body.style.display==='block';body.style.display=open?'none':'block';icon.textContent=open?'►':'▼'}
+function toggleDetail(id,el){const row=document.getElementById(`detail-${id}`);row.classList.toggle('hidden');el.textContent=row.classList.contains('hidden')?'+':'−'}
+function openModal(id){document.getElementById(id).style.display='flex'} function closeModal(id){document.getElementById(id).style.display='none'}
+function openPersonModal(){openModal('personModal')}
+function openIncidentModal(personId){document.getElementById('inc_person_id').value=personId;document.getElementById('i_date').value=new Date().toISOString().slice(0,10);openModal('incidentModal')}
+function openOverrideModal(personId,current){document.getElementById('override_person_id').value=personId;document.getElementById('override_value').value=current??0;openModal('overrideModal')}
+async function login(){try{const username=document.getElementById('loginUsername').value.trim();const password=document.getElementById('loginPassword').value;await api('/api/login',{method:'POST',body:JSON.stringify({username,password})});await boot()}catch(error){alert(error.message)}}
+async function logout(){await api('/api/logout',{method:'POST',body:'{}'});state.user=null;renderLogin()}
+async function savePerson(){try{await api('/api/personnel',{method:'POST',body:JSON.stringify({full_name:document.getElementById('p_full_name').value.trim(),job_title:document.getElementById('p_job_title').value,area:document.getElementById('p_area').value,notes:document.getElementById('p_notes').value,individual_risk_override:Number(document.getElementById('p_override').value||0)})});closeModal('personModal');await loadAll()}catch(error){alert(error.message)}}
+async function saveIncident(){try{await api('/api/incidents',{method:'POST',body:JSON.stringify({person_id:document.getElementById('inc_person_id').value,incident_date:document.getElementById('i_date').value,incident_type:document.getElementById('i_type').value,severity:document.getElementById('i_severity').value,proximity_category:document.getElementById('i_proximity').value,description:document.getElementById('i_description').value,on_shift:document.getElementById('f_on_shift').checked,directly_involved:document.getElementById('f_directly_involved').checked,witnessed_scene:document.getElementById('f_witnessed_scene').checked,body_recovery:document.getElementById('f_body_recovery').checked,line_of_sight_only:document.getElementById('f_line_of_sight_only').checked,multi_fatality:document.getElementById('f_multi_fatality').checked,media_interest:document.getElementById('f_media_interest').checked,colleague_involved:document.getElementById('f_colleague_involved').checked,child_involved:document.getElementById('f_child_involved').checked})});closeModal('incidentModal');await loadAll()}catch(error){alert(error.message)}}
+async function deleteIncident(id){if(!confirm('Delete this incident?'))return; try{await api(`/api/incidents?id=${encodeURIComponent(id)}`,{method:'DELETE'});await loadAll()}catch(error){alert(error.message)}}
+async function togglePersonStatus(id,status){try{await api('/api/personnel',{method:'PATCH',body:JSON.stringify({id,status})});await loadAll()}catch(error){alert(error.message)}}
+async function saveOverride(){try{await api('/api/personnel',{method:'PATCH',body:JSON.stringify({id:document.getElementById('override_person_id').value,individual_risk_override:Number(document.getElementById('override_value').value||0)})});closeModal('overrideModal');await loadAll()}catch(error){alert(error.message)}}
+async function saveScoring(){try{const items=state.scoring.map(item=>({key:item.key,score_value:Number(document.getElementById(`score_${item.key}`).value||0),is_enabled:document.getElementById(`enabled_${item.key}`).value==='true'}));await api('/api/scoring',{method:'PUT',body:JSON.stringify({items})});await loadAll()}catch(error){alert(error.message)}}
+async function loadAll(){const [personnelRes,overviewRes,scoringRes]=await Promise.all([api(`/api/personnel?showClosed=${state.filters.showClosed}`),api('/api/overview'),api('/api/scoring')]);state.personnel=personnelRes.items||[];state.overview=overviewRes||{};state.scoring=scoringRes.items||[];renderApp()}
+async function boot(){try{const me=await api('/api/me');state.user=me.user;await loadAll()}catch{renderLogin()}}
+boot();
+</script>
+</body>
+</html>

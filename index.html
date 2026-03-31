@@ -6,14 +6,14 @@
 <title>EM Route Operations TRiM Dashboard</title>
 <style>
 :root{
-  --bg:#0f1722;
-  --bg2:#131d2b;
-  --panel:#1a2636;
-  --panel2:#223247;
-  --panel3:#0f1a28;
-  --line:#31465f;
-  --text:#e8eef5;
-  --muted:#9fb0c4;
+  --bg:#f4f7fb;
+  --bg2:#eef3f9;
+  --panel:#ffffff;
+  --panel2:#f5f8fc;
+  --panel3:#ffffff;
+  --line:#d9e3ef;
+  --text:#1f2a36;
+  --muted:#6b7a8c;
   --accent:#4aa3ff;
   --accent2:#66d1ff;
   --green:#34c759;
@@ -23,7 +23,7 @@
   --radius:16px;
 }
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;font-family:Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,var(--bg),#111926 40%,#172233);color:var(--text)}
+html,body{margin:0;padding:0;font-family:Segoe UI,Roboto,Arial,sans-serif;background:#f4f7fb;color:var(--text)}
 header{
   position:sticky;top:0;z-index:20;
   background:linear-gradient(90deg,#0a4573,#11609d 55%,#1a7fc6);
@@ -67,7 +67,7 @@ header{
 label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:700}
 input,select,textarea{
   width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);
-  background:#0f1a28;color:var(--text);font:inherit;outline:none
+  background:#ffffff;color:var(--text);font:inherit;outline:none
 }
 textarea{resize:vertical}
 input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(74,163,255,.14)}
@@ -76,7 +76,7 @@ button{
   color:white;background:linear-gradient(180deg,#2b90e7,#1973c5)
 }
 button:hover{filter:brightness(1.05)}
-button.ghost{background:#152131;border:1px solid var(--line);color:var(--text)}
+button.ghost{background:#eef4fb;border:1px solid #cfd9e6;color:#1f2a36}
 button.secondary{background:linear-gradient(180deg,#274868,#1b3852)}
 button.warn{background:linear-gradient(180deg,#cc8b14,#a36a05)}
 button.danger{background:linear-gradient(180deg,#d65054,#a92f34)}
@@ -159,7 +159,7 @@ tr.closed-row td{opacity:.72}
       <div class="badge-pill">Local Stable Edition</div>
       <button class="ghost" onclick="openModal('settingsModal')">Risk scoring</button>
       <button class="secondary" onclick="exportBackup()">Export backup</button>
-      <label class="ghost" style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;padding:10px 14px;border-radius:10px;background:#152131;border:1px solid var(--line);font-weight:800;">
+      <label class="ghost" style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;padding:10px 14px;border-radius:10px;background:#eef4fb;border:1px solid var(--line);font-weight:800;">
         Import backup
         <input id="importFile" type="file" accept=".json" style="display:none" onchange="importBackup(event)">
       </label>

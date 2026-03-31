@@ -1,7 +1,445 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8" /><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>EM Route Operations TRiM Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root{
+--bg:#f4f7fb;
+--panel:#ffffff;
+--line:#d9e3ef;
+--text:#1f2a36;
+--muted:#6b7a8c;
+--accent:#2b7cd3;
+--green:#2ecc71;
+--amber:#f5a623;
+--red:#e74c3c;
+}
+
+body{
+margin:0;
+font-family:Segoe UI,Arial,sans-serif;
+background:var(--bg);
+color:var(--text);
+}
+
+header{
+background:#2b7cd3;
+color:white;
+padding:18px 22px;
+font-size:22px;
+font-weight:700;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.wrap{
+max-width:1400px;
+margin:auto;
+padding:20px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:16px;
+margin-bottom:20px;
+}
+
+.card{
+background:var(--panel);
+border:1px solid var(--line);
+border-radius:10px;
+padding:16px;
+}
+
+.metric{
+font-size:28px;
+font-weight:700;
+}
+
+.panel{
+background:var(--panel);
+border:1px solid var(--line);
+border-radius:10px;
+padding:16px;
+margin-bottom:20px;
+}
+
+button{
+background:var(--accent);
+color:white;
+border:none;
+padding:8px 12px;
+border-radius:6px;
+font-weight:600;
+cursor:pointer;
+}
+
+button.secondary{background:#7b8da6}
+button.warn{background:var(--amber)}
+button.danger{background:var(--red)}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+padding:10px;
+border-bottom:1px solid var(--line);
+text-align:left;
+}
+
+th{
+background:#f7f9fc;
+font-size:12px;
+color:var(--muted);
+text-transform:uppercase;
+}
+
+.badge{
+padding:4px 8px;
+border-radius:6px;
+font-size:12px;
+font-weight:600;
+}
+
+.green{background:#e6f7ee;color:#2ecc71}
+.amber{background:#fff4e5;color:#f5a623}
+.red{background:#ffe8e6;color:#e74c3c}
+
+.login{
+position:fixed;
+inset:0;
+background:#f4f7fb;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+.login-box{
+background:white;
+border:1px solid var(--line);
+padding:30px;
+border-radius:10px;
+width:300px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="login" id="loginScreen">
+<div class="login-box">
+<h3>TRiM Dashboard Login</h3>
+
+<label>User</label>
+<input id="loginUser">
+
+<label>Password</label>
+<input type="password" id="loginPass">
+
+<br><br>
+
+<button onclick="login()">Login</button>
+
+</div>
+</div>
+
+<header>
+<div>EM Route Operations TRiM Dashboard</div>
+<div id="userRole"></div>
+</header>
+
+<div class="wrap">
+
+<div class="grid">
+<div class="card"><div>Open Personnel</div><div class="metric" id="openCount">0</div></div>
+<div class="card"><div>Total Incidents</div><div class="metric" id="incidentCount">0</div></div>
+<div class="card"><div>Amber Risk</div><div class="metric" id="amberCount">0</div></div>
+<div class="card"><div>Red Risk</div><div class="metric" id="redCount">0</div></div>
+</div>
+
+<div class="panel">
+
+<button onclick="addPerson()">Add Person</button>
+<button onclick="addIncident()">Add Incident</button>
+<button onclick="saveToGitHub()">Save</button>
+
+</div>
+
+<div class="panel">
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Job</th>
+<th>Area</th>
+<th>Incidents</th>
+<th>Score</th>
+<th>RAG</th>
+</tr>
+</thead>
+
+<tbody id="tableBody"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+/* ------------------
+GITHUB CONFIG
+------------------ */
+
+const GITHUB_OWNER="YOUR_GITHUB_USERNAME"
+const GITHUB_REPO="YOUR_REPO"
+const DATA_FILE="trim_data.json"
+const GITHUB_TOKEN="PASTE_TOKEN_HERE"
+
+/* ------------------
+USER ROLES
+------------------ */
+
+const USERS={
+admin:{password:"admin123",role:"super"},
+editor:{password:"edit123",role:"edit"},
+viewer:{password:"view123",role:"read"}
+}
+
+let currentRole="read"
+
+function login(){
+
+let u=loginUser.value
+let p=loginPass.value
+
+if(!USERS[u]||USERS[u].password!==p){
+alert("Invalid login")
+return
+}
+
+currentRole=USERS[u].role
+userRole.innerText="Role: "+currentRole
+
+loginScreen.style.display="none"
+
+}
+
+/* ------------------
+DATA
+------------------ */
+
+let data={
+personnel:[],
+incidents:[]
+}
+
+/* ------------------
+LOAD FROM GITHUB
+------------------ */
+
+async function loadData(){
+
+const url=`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_FILE}`
+
+try{
+
+const res=await fetch(url)
+
+if(res.status===404){
+render()
+return
+}
+
+const j=await res.json()
+
+const decoded=JSON.parse(atob(j.content))
+
+data=decoded
+
+render()
+
+}catch(e){
+
+console.log("Load failed",e)
+
+}
+
+}
+
+/* ------------------
+SAVE
+------------------ */
+
+async function saveToGitHub(){
+
+if(currentRole==="read"){
+alert("Read only access")
+return
+}
+
+const url=`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${DATA_FILE}`
+
+let sha=null
+
+const existing=await fetch(url)
+
+if(existing.status!==404){
+const j=await existing.json()
+sha=j.sha
+}
+
+const payload={
+message:"TRiM update",
+content:btoa(JSON.stringify(data,null,2)),
+sha:sha
+}
+
+await fetch(url,{
+method:"PUT",
+headers:{
+Authorization:`token ${GITHUB_TOKEN}`,
+"Content-Type":"application/json"
+},
+body:JSON.stringify(payload)
+})
+
+alert("Saved")
+
+}
+
+/* ------------------
+FUNCTIONS
+------------------ */
+
+function addPerson(){
+
+if(currentRole==="read"){
+alert("Read only")
+return
+}
+
+const name=prompt("Name")
+
+if(!name)return
+
+data.personnel.push({
+id:crypto.randomUUID(),
+name:name,
+job:"SNDM",
+area:"EMCC (Derby)"
+})
+
+render()
+
+}
+
+function addIncident(){
+
+if(currentRole==="read"){
+alert("Read only")
+return
+}
+
+const person=data.personnel[0]
+
+if(!person){
+alert("Add personnel first")
+return
+}
+
+data.incidents.push({
+person:person.id,
+date:new Date().toISOString().slice(0,10),
+type:"Fatality"
+})
+
+render()
+
+}
+
+function score(p){
+
+let inc=data.incidents.filter(i=>i.person===p.id)
+
+return inc.length*5
+
+}
+
+function rag(s){
+
+if(s>=20)return"Red"
+if(s>=10)return"Amber"
+return"Green"
+
+}
+
+function render(){
+
+openCount.innerText=data.personnel.length
+incidentCount.innerText=data.incidents.length
+
+let amber=0
+let red=0
+
+const rows=data.personnel.map(p=>{
+
+const s=score(p)
+const r=rag(s)
+
+if(r==="Amber")amber++
+if(r==="Red")red++
+
+const inc=data.incidents.filter(i=>i.person===p.id)
+
+return`
+
+<tr>
+<td>${p.name}</td>
+<td>${p.job}</td>
+<td>${p.area}</td>
+<td>${inc.length}</td>
+<td>${s}</td>
+<td><span class="badge ${r.toLowerCase()}">${r}</span></td>
+</tr>
+
+`
+
+}).join("")
+
+amberCount.innerText=amber
+redCount.innerText=red
+
+tableBody.innerHTML=rows
+
+}
+
+/* ------------------
+AUTO SYNC
+------------------ */
+
+loadData()
+
+setInterval(loadData,10000)
+
+</script>
+
+</body>
+</html>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>EM Route Operations TRiM Dashboard</title>
 <style>

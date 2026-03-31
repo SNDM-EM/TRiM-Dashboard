@@ -1,124 +1,912 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>EM Route Operations TRiM Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    :root{--bg:#eef3f8;--panel:#fff;--line:#dde5ee;--text:#1f2937;--muted:#64748b;--brand:#0f4c81;--brand2:#1f6fb2;--green:#2e7d32;--amber:#ef6c00;--red:#c62828;--shadow:0 10px 24px rgba(15,23,42,.08);--radius:14px}
-    *{box-sizing:border-box} body{margin:0;font-family:Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#f4f7fb,#e9eff6);color:var(--text)}
-    header{background:linear-gradient(90deg,#003665,#0f4c81 60%,#2a74b8);color:#fff;padding:18px 24px;box-shadow:var(--shadow);position:sticky;top:0;z-index:20}
-    .header-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.title{font-size:24px;font-weight:700}
-    .user-pill{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:8px 12px;display:flex;align-items:center;gap:10px;font-size:13px}
-    .logout-btn{background:#fff;color:#0f4c81;border:none;border-radius:999px;padding:7px 12px;font-weight:600;cursor:pointer}
-    .wrap{max-width:1440px;margin:0 auto;padding:22px}.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
-    .card,.panel{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid #edf2f7}
-    .card{padding:18px;border-left:6px solid var(--brand)} .card:nth-child(2){border-left-color:#5f84c5}.card:nth-child(3){border-left-color:var(--amber)}.card:nth-child(4){border-left-color:var(--red)}
-    .eyebrow{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.metric{font-size:32px;font-weight:700;margin-top:8px}
-    .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:18px 0}
-    select,input,textarea{border:1px solid #cfd8e3;border-radius:10px;padding:10px 12px;font:inherit;width:100%;background:#fff}
-    button{border:none;border-radius:10px;padding:10px 14px;background:var(--brand2);color:#fff;font-weight:600;cursor:pointer}
-    button.secondary{background:#e8f1fa;color:#0f4c81} button.ghost{background:#f8fafc;color:#334155;border:1px solid var(--line)}
-    .overview-panels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:18px 0}.panel{padding:16px}.panel h3{margin:0 0 12px 0;font-size:14px}.panel-list{font-size:13px;color:#334155;line-height:1.6}.none{color:var(--muted)}
-    .table-panel{overflow:hidden} table{width:100%;border-collapse:collapse} th,td{padding:12px 14px;border-bottom:1px solid #edf2f7;text-align:left;vertical-align:top;font-size:13px}
-    th{background:#f8fbfe;color:#475569;font-weight:700} tr.closed-row{background:#fafafa;color:#6b7280}.expand{cursor:pointer;font-weight:700;color:#0f4c81;width:20px;display:inline-block;text-align:center}
-    .badge{display:inline-block;padding:4px 9px;border-radius:999px;font-weight:700;font-size:12px}.green{background:#e8f5e9;color:var(--green)}.amber{background:#fff3e0;color:var(--amber)}.red{background:#fdecea;color:var(--red)}
-    .incident-box{background:#f8fbfe;border:1px solid #e5edf6;border-radius:12px;padding:12px;margin:8px 0}.incident-meta{font-weight:700;margin-bottom:6px}
-    .incident-flags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.flag{background:#edf4fb;color:#315a7d;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:600}
-    .scoring-panel{margin:18px 0}.scoring-head{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;padding:16px}.scoring-body{padding:0 16px 16px 16px;display:none}
-    .scoring-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;align-items:center}.muted{color:var(--muted)}
-    .login-shell{min-height:100vh;display:grid;place-items:center;padding:20px;background:linear-gradient(180deg,#eaf1f8,#dce7f3)}.login-card{width:min(420px,100%);background:#fff;border-radius:20px;padding:26px;box-shadow:var(--shadow);border:1px solid #e7eef6}
-    .login-title{font-size:26px;font-weight:800;color:#0f4c81;margin:0 0 8px 0}.sub{font-size:14px;color:var(--muted);margin-bottom:18px}
-    .row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.modal{position:fixed;inset:0;background:rgba(15,23,42,.38);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
-    .modal-content{width:min(760px,100%);background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:20px;max-height:90vh;overflow:auto}
-    .section-title{margin:18px 0 8px 0;font-size:14px;font-weight:800;color:#0f4c81}.help{font-size:12px;color:var(--muted)}.hidden{display:none !important}.right{display:flex;justify-content:flex-end;gap:10px}
-    @media (max-width:1100px){.grid4,.overview-panels{grid-template-columns:repeat(2,minmax(0,1fr))}} @media (max-width:760px){.grid4,.overview-panels,.row2{grid-template-columns:1fr}.title{font-size:20px}}
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EM Route Operations TRiM Dashboard</title>
+<style>
+:root{
+  --bg:#f4f7fb;
+  --bg2:#eef3f9;
+  --panel:#ffffff;
+  --panel2:#f5f8fc;
+  --panel3:#ffffff;
+  --line:#d9e3ef;
+  --text:#1f2a36;
+  --muted:#6b7a8c;
+  --accent:#4aa3ff;
+  --accent2:#66d1ff;
+  --green:#34c759;
+  --amber:#ffb020;
+  --red:#ff5a5f;
+  --shadow:0 12px 28px rgba(0,0,0,.28);
+  --radius:16px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;font-family:Segoe UI,Roboto,Arial,sans-serif;background:#f4f7fb;color:var(--text)}
+header{
+  position:sticky;top:0;z-index:20;
+  background:linear-gradient(90deg,#0a4573,#11609d 55%,#1a7fc6);
+  padding:18px 22px;
+  box-shadow:var(--shadow);
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.header-row{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.title-wrap{display:flex;flex-direction:column;gap:4px}
+.title{font-size:26px;font-weight:800;letter-spacing:.2px}
+.subtitle{font-size:13px;color:#d7e6f8;opacity:.9}
+.header-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.badge-pill{
+  padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.16);font-size:12px;font-weight:700;color:white
+}
+.wrap{max-width:1500px;margin:0 auto;padding:20px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.overview-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:18px}
+.card,.panel{
+  background:linear-gradient(180deg,var(--panel),var(--panel3));
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+.card{padding:18px;position:relative;overflow:hidden}
+.card::after{
+  content:"";position:absolute;right:-20px;top:-20px;width:110px;height:110px;
+  background:radial-gradient(circle,rgba(255,255,255,.12),transparent 70%);
+}
+.card h3,.panel h3{margin:0 0 10px 0;font-size:13px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.metric{font-size:34px;font-weight:800;line-height:1}
+.metric-sub{margin-top:8px;font-size:12px;color:var(--muted)}
+.card.blue{border-left:5px solid var(--accent)}
+.card.cyan{border-left:5px solid var(--accent2)}
+.card.amber{border-left:5px solid var(--amber)}
+.card.red{border-left:5px solid var(--red)}
+.panel{padding:16px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin-top:18px}
+.field{min-width:170px;flex:0 1 auto}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:700}
+input,select,textarea{
+  width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);
+  background:#ffffff;color:var(--text);font:inherit;outline:none
+}
+textarea{resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(74,163,255,.14)}
+button{
+  border:none;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer;
+  color:white;background:linear-gradient(180deg,#2b90e7,#1973c5)
+}
+button:hover{filter:brightness(1.05)}
+button.ghost{background:#eef4fb;border:1px solid #cfd9e6;color:#1f2a36}
+button.secondary{background:linear-gradient(180deg,#274868,#1b3852)}
+button.warn{background:linear-gradient(180deg,#cc8b14,#a36a05)}
+button.danger{background:linear-gradient(180deg,#d65054,#a92f34)}
+button.success{background:linear-gradient(180deg,#2db864,#1e8f4b)}
+.help{font-size:12px;color:var(--muted)}
+.notice{
+  margin-top:12px;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,176,32,.25);
+  background:rgba(255,176,32,.08);color:#ffd695;font-size:12px
+}
+.status-bar{margin-top:12px;font-size:12px;color:#b7c7d8}
+.table-panel{margin-top:18px;padding:0;overflow:hidden}
+.table-head{padding:16px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+table{width:100%;border-collapse:collapse}
+th,td{
+  padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.06);text-align:left;vertical-align:top;font-size:13px
+}
+th{background:#132131;color:#bcd0e4;font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:11px}
+tr:hover td{background:rgba(255,255,255,.02)}
+tr.closed-row td{opacity:.72}
+.badge{display:inline-block;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.04em}
+.badge.green{background:rgba(52,199,89,.14);color:#8df2ac;border:1px solid rgba(52,199,89,.25)}
+.badge.amber{background:rgba(255,176,32,.14);color:#ffd27b;border:1px solid rgba(255,176,32,.25)}
+.badge.red{background:rgba(255,90,95,.14);color:#ff9ea2;border:1px solid rgba(255,90,95,.25)}
+.badge.closed{background:rgba(255,255,255,.08);color:#c6d3e1;border:1px solid rgba(255,255,255,.1)}
+.expand{
+  width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;
+  border-radius:999px;background:#17304a;color:#8cc8ff;font-weight:800;cursor:pointer
+}
+.incident-box{
+  background:linear-gradient(180deg,#142234,#101b2a);
+  border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px;margin:10px 0
+}
+.incident-title{font-weight:800;margin-bottom:6px}
+.flag-wrap{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.flag{
+  background:#18304a;border:1px solid #264866;color:#9fd0ff;border-radius:999px;
+  padding:4px 8px;font-size:11px;font-weight:700
+}
+.person-notes{
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:10px 12px
+}
+.scoring-toggle{display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:10px}
+.scoring-body{display:none;margin-top:14px}
+.scoring-grid{display:grid;grid-template-columns:2.1fr .8fr .8fr;gap:10px;align-items:center}
+.overview-list{display:flex;flex-direction:column;gap:8px;min-height:70px}
+.overview-item{
+  padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.06);font-size:13px
+}
+.muted{color:var(--muted)}
+.hidden{display:none!important}
+.modal{
+  position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;
+  background:rgba(3,8,15,.7);backdrop-filter:blur(4px);z-index:50
+}
+.modal-content{
+  width:min(980px,100%);max-height:90vh;overflow:auto;
+  background:linear-gradient(180deg,#182536,#121c29);border-radius:20px;padding:20px;
+  border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow)
+}
+.modal-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.section-title{margin:18px 0 8px;font-size:13px;font-weight:900;color:#beddff;text-transform:uppercase;letter-spacing:.08em}
+.row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.footer-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:16px}
+.tagline{font-size:12px;color:var(--muted)}
+.empty-state{padding:18px;color:var(--muted);text-align:center}
+@media (max-width:1250px){.grid4,.overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:780px){.grid4,.overview-grid,.row2,.row3{grid-template-columns:1fr}.title{font-size:22px}.wrap{padding:14px}}
+</style>
 </head>
 <body>
-<div id="app"></div>
-<script>
-const AREAS=['EMCC (Derby)','West Hampstead','Bedford','Leicester','Kettering','Nottingham','Derby','Elstree','Kentish Town','Chesterfield'];
-const JOB_TITLES=['MOM','LOM','Signaller','SSM','IC','TRC','RCM','SNDM'];
-const INCIDENT_TYPES=['Fatality','Suicide Attempt','Person Struck by Train','Serious Injury','Major Operational Incident','Near Miss','Other'];
-const SEVERITIES=['Low','Moderate','High','Critical'];
-let state={user:null,personnel:[],overview:null,scoring:[],filters:{rag:'',incident:'',area:'',showClosed:'false'}};
-
-function escapeHtml(v=''){return String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#39;")}
-async function api(url,options={}){const res=await fetch(url,{credentials:'include',headers:{'Content-Type':'application/json',...(options.headers||{})},...options}); if(!res.ok){let msg='Request failed'; try{const b=await res.json(); msg=b.error||msg}catch{} throw new Error(msg)} if(res.status===204)return null; return res.json()}
-function canEdit(){return state.user&&['editor','super_user'].includes(state.user.role)} function canSuper(){return state.user&&state.user.role==='super_user'}
-
-function renderLogin(){document.getElementById('app').innerHTML=`<div class="login-shell"><div class="login-card"><div class="login-title">EM Route Operations TRiM Dashboard</div><div class="sub">Secure sign in for TRiM monitoring, welfare review, and audit access.</div><label>Username</label><input id="loginUsername"><label>Password</label><input id="loginPassword" type="password"><div class="right" style="margin-top:12px"><button onclick="login()">Sign in</button></div><div class="help" style="margin-top:14px">Roles supported: read_only, editor, super_user</div></div></div>`}
-
-function scoringRowsHtml(){return state.scoring.map(item=>`<div class="scoring-grid" style="margin-bottom:10px"><div><div style="font-weight:700">${escapeHtml(item.label)}</div><div class="help">Key: ${escapeHtml(item.key)}</div></div><div><input type="number" id="score_${escapeHtml(item.key)}" value="${Number(item.score_value||0)}" ${canSuper()?'':'disabled'}></div><div><select id="enabled_${escapeHtml(item.key)}" ${canSuper()?'':'disabled'}><option value="true" ${item.is_enabled?'selected':''}>On</option><option value="false" ${!item.is_enabled?'selected':''}>Off</option></select></div></div>`).join('')}
-
-function filteredPersonnel(){return state.personnel.filter(p=>{if(state.filters.showClosed!=='true'&&p.status==='closed')return false; if(state.filters.area&&p.area!==state.filters.area)return false; if(state.filters.rag&&p.rag_status!==state.filters.rag)return false; if(state.filters.incident&&!(p.incidents||[]).some(i=>i.incident_type===state.filters.incident))return false; return true})}
-
-function renderApp(){
-  const rows=filteredPersonnel();
-  const amberCount=state.personnel.filter(p=>p.rag_status==='Amber'&&p.status==='open').length;
-  const redCount=state.personnel.filter(p=>p.rag_status==='Red'&&p.status==='open').length;
-  const totalIncidents=state.overview?.total_incidents??0;
-  const totalPersonnel=state.overview?.total_personnel_open??0;
-  const highRisk=state.personnel.filter(p=>p.rag_status==='Red'&&p.status==='open').map(p=>`${p.full_name} (${p.risk_score})`);
-  const recentExposure=state.personnel.filter(p=>(p.incidents||[]).some(i=>Math.abs((Date.now()-new Date(i.incident_date))/86400000)<=30)).map(p=>p.full_name);
-  const multiExposure=state.personnel.filter(p=>(p.incidents||[]).length>=3).map(p=>`${p.full_name} (${p.total_incidents})`);
-  const breakdown=state.overview?.incident_breakdown||[];
-  document.getElementById('app').innerHTML=`
-  <header><div class="header-row"><div class="title">EM Route Operations TRiM Dashboard</div><div class="user-pill"><span><strong>${escapeHtml(state.user.display_name||state.user.username)}</strong></span><span style="opacity:.8">${escapeHtml(state.user.role)}</span><button class="logout-btn" onclick="logout()">Sign out</button></div></div></header>
-  <div class="wrap">
-    <div class="grid4">
-      <div class="card"><div class="eyebrow">Open personnel</div><div class="metric">${totalPersonnel}</div></div>
-      <div class="card"><div class="eyebrow">Total incidents logged</div><div class="metric">${totalIncidents}</div></div>
-      <div class="card"><div class="eyebrow">Amber risk personnel</div><div class="metric">${amberCount}</div></div>
-      <div class="card"><div class="eyebrow">Red risk personnel</div><div class="metric">${redCount}</div></div>
+<header>
+  <div class="header-row">
+    <div class="title-wrap">
+      <div class="title">EM Route Operations TRiM Dashboard</div>
+      <div class="subtitle">Operational welfare monitoring, exposure review, and controllable trauma risk scoring</div>
     </div>
-    <div class="overview-panels">
-      <div class="panel"><h3>High risk personnel</h3><div class="panel-list">${highRisk.length?highRisk.map(x=>`<div>${escapeHtml(x)}</div>`).join(''):'<div class="none">None</div>'}</div></div>
-      <div class="panel"><h3>Recent exposure (30 days)</h3><div class="panel-list">${recentExposure.length?recentExposure.map(x=>`<div>${escapeHtml(x)}</div>`).join(''):'<div class="none">None</div>'}</div></div>
-      <div class="panel"><h3>Multiple incident exposure</h3><div class="panel-list">${multiExposure.length?multiExposure.map(x=>`<div>${escapeHtml(x)}</div>`).join(''):'<div class="none">None</div>'}</div></div>
-      <div class="panel"><h3>Incident type breakdown</h3><div class="panel-list">${breakdown.length?breakdown.map(x=>`<div>${escapeHtml(x.incident_type)}: ${x.count}</div>`).join(''):'<div class="none">No incidents</div>'}</div></div>
-    </div>
-    <div class="panel scoring-panel">
-      <div class="scoring-head" onclick="toggleScoring()"><div><div style="font-weight:800;color:#0f4c81">Risk scoring matrix</div><div class="help">${canSuper()?'Super users can change scores and switch factors on or off.':'Read only for your access level.'}</div></div><div id="scoringToggle">►</div></div>
-      <div class="scoring-body" id="scoringBody"><div class="scoring-grid" style="font-weight:800;margin-bottom:8px"><div>Factor</div><div>Score</div><div>Enabled</div></div>${scoringRowsHtml()}${canSuper()?'<div class="right"><button onclick="saveScoring()">Save scoring matrix</button></div>':''}</div>
-    </div>
-    <div class="toolbar">
-      <select onchange="state.filters.rag=this.value; renderApp()" style="max-width:180px"><option value="">All RAG status</option><option value="Green" ${state.filters.rag==='Green'?'selected':''}>Green</option><option value="Amber" ${state.filters.rag==='Amber'?'selected':''}>Amber</option><option value="Red" ${state.filters.rag==='Red'?'selected':''}>Red</option></select>
-      <select onchange="state.filters.incident=this.value; renderApp()" style="max-width:220px"><option value="">All incident types</option>${INCIDENT_TYPES.map(x=>`<option ${state.filters.incident===x?'selected':''}>${x}</option>`).join('')}</select>
-      <select onchange="state.filters.area=this.value; renderApp()" style="max-width:220px"><option value="">All locations</option>${AREAS.map(x=>`<option ${state.filters.area===x?'selected':''}>${x}</option>`).join('')}</select>
-      <select onchange="state.filters.showClosed=this.value; loadAll()" style="max-width:220px"><option value="false" ${state.filters.showClosed==='false'?'selected':''}>Open personnel only</option><option value="true" ${state.filters.showClosed==='true'?'selected':''}>Include closed personnel</option></select>
-      ${canEdit()?'<button onclick="openPersonModal()">Add person</button>':''}
-    </div>
-    <div class="panel table-panel">
-      <table><thead><tr><th></th><th>Name</th><th>Job title</th><th>Area</th><th>Incidents</th><th>Risk score</th><th>RAG</th><th>Status</th><th>Last incident</th><th>Actions</th></tr></thead>
-      <tbody>
-      ${rows.map(p=>`<tr class="${p.status==='closed'?'closed-row':''}"><td><span class="expand" onclick="toggleDetail('${p.id}',this)">+</span></td><td><div style="font-weight:700">${escapeHtml(p.full_name)}</div>${p.notes?`<div class="help">${escapeHtml(p.notes)}</div>`:''}</td><td>${escapeHtml(p.job_title)}</td><td>${escapeHtml(p.area)}</td><td>${p.total_incidents}</td><td>${p.risk_score + (p.individual_risk_override||0)}${p.individual_risk_override?` <span class="help">(override ${p.individual_risk_override>0?'+':''}${p.individual_risk_override})</span>`:''}</td><td><span class="badge ${String(p.rag_status).toLowerCase()}">${escapeHtml(p.rag_status)}</span></td><td>${escapeHtml(p.status)}</td><td>${p.last_incident_date?escapeHtml(p.last_incident_date):'-'}</td><td>${canEdit()?`<button class="secondary" onclick="openIncidentModal('${p.id}')">Add incident</button>`:''} ${canEdit()?`<button class="ghost" onclick="togglePersonStatus('${p.id}','${p.status==='open'?'closed':'open'}')">${p.status==='open'?'Close':'Reopen'}</button>`:''}</td></tr>
-      <tr id="detail-${p.id}" class="hidden"><td colspan="10"><div class="row2"><div><div class="section-title">Personnel notes</div><div>${p.notes?escapeHtml(p.notes):'<span class="muted">No personnel notes.</span>'}</div></div><div><div class="section-title">Individual override</div><div>${p.individual_risk_override??0}</div>${canEdit()?`<div class="right" style="margin-top:10px"><button class="ghost" onclick="openOverrideModal('${p.id}',${p.individual_risk_override??0})">Adjust override</button></div>`:''}</div></div><div class="section-title">Incident history</div>${(p.incidents||[]).length?p.incidents.map(i=>`<div class="incident-box"><div class="incident-meta">${escapeHtml(i.incident_date)} — ${escapeHtml(i.incident_type)} (${escapeHtml(i.severity)})</div><div>${escapeHtml(i.description||'No notes recorded.')}</div><div class="incident-flags">${i.on_shift?'<span class="flag">On shift</span>':''}${i.directly_involved?'<span class="flag">Directly involved</span>':''}${i.witnessed_scene?'<span class="flag">Witnessed scene</span>':''}${i.body_recovery?'<span class="flag">Body recovery</span>':''}${i.line_of_sight_only?'<span class="flag">Indirect exposure</span>':''}${i.multi_fatality?'<span class="flag">Multiple casualties</span>':''}${i.media_interest?'<span class="flag">Media interest</span>':''}${i.colleague_involved?'<span class="flag">Colleague involved</span>':''}${i.child_involved?'<span class="flag">Child involved</span>':''}<span class="flag">${escapeHtml(i.proximity_category||'Indirect')}</span></div>${canEdit()?`<div class="right" style="margin-top:10px"><button class="ghost" onclick="deleteIncident('${i.id}')">Delete incident</button></div>`:''}</div>`).join(''):'<div class="muted">No incidents recorded.</div>'}</td></tr>`).join('')}
-      </tbody></table>
+    <div class="header-actions">
+      <div class="badge-pill">Local Stable Edition</div>
+      <button class="ghost" onclick="openModal('settingsModal')">Risk scoring</button>
+      <button class="secondary" onclick="exportBackup()">Export backup</button>
+      <label class="ghost" style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;padding:10px 14px;border-radius:10px;background:#eef4fb;border:1px solid var(--line);font-weight:800;">
+        Import backup
+        <input id="importFile" type="file" accept=".json" style="display:none" onchange="importBackup(event)">
+      </label>
     </div>
   </div>
-  <div class="modal" id="personModal"><div class="modal-content"><h2 style="margin-top:0">Add person</h2><div class="row2"><div><label>Full name</label><input id="p_full_name"></div><div><label>Job title</label><select id="p_job_title">${JOB_TITLES.map(x=>`<option>${x}</option>`).join('')}</select></div></div><div class="row2"><div><label>Area</label><select id="p_area">${AREAS.map(x=>`<option>${x}</option>`).join('')}</select></div><div><label>Individual risk override</label><input id="p_override" type="number" value="0"><div class="help">Use only where a local risk decision needs a manual adjustment.</div></div></div><label>Notes</label><textarea id="p_notes" rows="4"></textarea><div class="right"><button class="ghost" onclick="closeModal('personModal')">Cancel</button><button onclick="savePerson()">Save</button></div></div></div>
-  <div class="modal" id="incidentModal"><div class="modal-content"><h2 style="margin-top:0">Add incident</h2><input id="inc_person_id" type="hidden"><div class="row2"><div><label>Date</label><input id="i_date" type="date"></div><div><label>Incident type</label><select id="i_type">${INCIDENT_TYPES.map(x=>`<option>${x}</option>`).join('')}</select></div></div><div class="row2"><div><label>Severity</label><select id="i_severity">${SEVERITIES.map(x=>`<option>${x}</option>`).join('')}</select></div><div><label>Proximity</label><select id="i_proximity"><option>Direct</option><option>Close proximity</option><option>Indirect</option></select></div></div><div class="section-title">Incident factors</div><div class="row2"><label><input type="checkbox" id="f_on_shift"> On shift</label><label><input type="checkbox" id="f_directly_involved"> Directly involved</label><label><input type="checkbox" id="f_witnessed_scene"> Witnessed scene</label><label><input type="checkbox" id="f_body_recovery"> Body recovery involvement</label><label><input type="checkbox" id="f_line_of_sight_only"> Indirect / line of sight only</label><label><input type="checkbox" id="f_multi_fatality"> Multiple casualties / fatalities</label><label><input type="checkbox" id="f_media_interest"> Media interest</label><label><input type="checkbox" id="f_colleague_involved"> Colleague involved</label><label><input type="checkbox" id="f_child_involved"> Child involved</label></div><label>Description / notes</label><textarea id="i_description" rows="5"></textarea><div class="right"><button class="ghost" onclick="closeModal('incidentModal')">Cancel</button><button onclick="saveIncident()">Save incident</button></div></div></div>
-  <div class="modal" id="overrideModal"><div class="modal-content"><h2 style="margin-top:0">Adjust individual override</h2><input id="override_person_id" type="hidden"><label>Override value</label><input id="override_value" type="number"><div class="help">Positive values increase score. Negative values reduce score.</div><div class="right" style="margin-top:14px"><button class="ghost" onclick="closeModal('overrideModal')">Cancel</button><button onclick="saveOverride()">Save</button></div></div></div>`}
+</header>
 
-function toggleScoring(){const body=document.getElementById('scoringBody');const icon=document.getElementById('scoringToggle');const open=body.style.display==='block';body.style.display=open?'none':'block';icon.textContent=open?'►':'▼'}
-function toggleDetail(id,el){const row=document.getElementById(`detail-${id}`);row.classList.toggle('hidden');el.textContent=row.classList.contains('hidden')?'+':'−'}
-function openModal(id){document.getElementById(id).style.display='flex'} function closeModal(id){document.getElementById(id).style.display='none'}
-function openPersonModal(){openModal('personModal')}
-function openIncidentModal(personId){document.getElementById('inc_person_id').value=personId;document.getElementById('i_date').value=new Date().toISOString().slice(0,10);openModal('incidentModal')}
-function openOverrideModal(personId,current){document.getElementById('override_person_id').value=personId;document.getElementById('override_value').value=current??0;openModal('overrideModal')}
-async function login(){try{const username=document.getElementById('loginUsername').value.trim();const password=document.getElementById('loginPassword').value;await api('/api/login',{method:'POST',body:JSON.stringify({username,password})});await boot()}catch(error){alert(error.message)}}
-async function logout(){await api('/api/logout',{method:'POST',body:'{}'});state.user=null;renderLogin()}
-async function savePerson(){try{await api('/api/personnel',{method:'POST',body:JSON.stringify({full_name:document.getElementById('p_full_name').value.trim(),job_title:document.getElementById('p_job_title').value,area:document.getElementById('p_area').value,notes:document.getElementById('p_notes').value,individual_risk_override:Number(document.getElementById('p_override').value||0)})});closeModal('personModal');await loadAll()}catch(error){alert(error.message)}}
-async function saveIncident(){try{await api('/api/incidents',{method:'POST',body:JSON.stringify({person_id:document.getElementById('inc_person_id').value,incident_date:document.getElementById('i_date').value,incident_type:document.getElementById('i_type').value,severity:document.getElementById('i_severity').value,proximity_category:document.getElementById('i_proximity').value,description:document.getElementById('i_description').value,on_shift:document.getElementById('f_on_shift').checked,directly_involved:document.getElementById('f_directly_involved').checked,witnessed_scene:document.getElementById('f_witnessed_scene').checked,body_recovery:document.getElementById('f_body_recovery').checked,line_of_sight_only:document.getElementById('f_line_of_sight_only').checked,multi_fatality:document.getElementById('f_multi_fatality').checked,media_interest:document.getElementById('f_media_interest').checked,colleague_involved:document.getElementById('f_colleague_involved').checked,child_involved:document.getElementById('f_child_involved').checked})});closeModal('incidentModal');await loadAll()}catch(error){alert(error.message)}}
-async function deleteIncident(id){if(!confirm('Delete this incident?'))return; try{await api(`/api/incidents?id=${encodeURIComponent(id)}`,{method:'DELETE'});await loadAll()}catch(error){alert(error.message)}}
-async function togglePersonStatus(id,status){try{await api('/api/personnel',{method:'PATCH',body:JSON.stringify({id,status})});await loadAll()}catch(error){alert(error.message)}}
-async function saveOverride(){try{await api('/api/personnel',{method:'PATCH',body:JSON.stringify({id:document.getElementById('override_person_id').value,individual_risk_override:Number(document.getElementById('override_value').value||0)})});closeModal('overrideModal');await loadAll()}catch(error){alert(error.message)}}
-async function saveScoring(){try{const items=state.scoring.map(item=>({key:item.key,score_value:Number(document.getElementById(`score_${item.key}`).value||0),is_enabled:document.getElementById(`enabled_${item.key}`).value==='true'}));await api('/api/scoring',{method:'PUT',body:JSON.stringify({items})});await loadAll()}catch(error){alert(error.message)}}
-async function loadAll(){const [personnelRes,overviewRes,scoringRes]=await Promise.all([api(`/api/personnel?showClosed=${state.filters.showClosed}`),api('/api/overview'),api('/api/scoring')]);state.personnel=personnelRes.items||[];state.overview=overviewRes||{};state.scoring=scoringRes.items||[];renderApp()}
-async function boot(){try{const me=await api('/api/me');state.user=me.user;await loadAll()}catch{renderLogin()}}
-boot();
+<div class="wrap">
+  <div class="grid4">
+    <div class="card blue"><h3>Open Personnel</h3><div class="metric" id="metricOpen">0</div><div class="metric-sub">Current active records</div></div>
+    <div class="card cyan"><h3>Total Incidents Logged</h3><div class="metric" id="metricIncidents">0</div><div class="metric-sub">All records including closed personnel</div></div>
+    <div class="card amber"><h3>Amber Risk Personnel</h3><div class="metric" id="metricAmber">0</div><div class="metric-sub">Monitoring recommended</div></div>
+    <div class="card red"><h3>Red Risk Personnel</h3><div class="metric" id="metricRed">0</div><div class="metric-sub">Immediate review priority</div></div>
+  </div>
+
+  <div class="overview-grid">
+    <div class="panel">
+      <h3>High Risk Personnel</h3>
+      <div class="overview-list" id="highRiskList"></div>
+    </div>
+    <div class="panel">
+      <h3>Recent Exposure (30 Days)</h3>
+      <div class="overview-list" id="recentExposureList"></div>
+    </div>
+    <div class="panel">
+      <h3>Multiple Incident Exposure</h3>
+      <div class="overview-list" id="multiExposureList"></div>
+    </div>
+    <div class="panel">
+      <h3>Incident Type Breakdown</h3>
+      <div class="overview-list" id="incidentBreakdownList"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Main Dashboard Filters</h3>
+    <div class="toolbar">
+      <div class="field">
+        <label>Search name</label>
+        <input id="searchName" placeholder="Search personnel name" oninput="renderAll()">
+      </div>
+      <div class="field">
+        <label>RAG status</label>
+        <select id="filterRag" onchange="renderAll()">
+          <option value="">All RAG status</option>
+          <option>Green</option>
+          <option>Amber</option>
+          <option>Red</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Incident type</label>
+        <select id="filterIncident" onchange="renderAll()">
+          <option value="">All incident types</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Area</label>
+        <select id="filterArea" onchange="renderAll()">
+          <option value="">All areas</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Personnel status</label>
+        <select id="filterStatus" onchange="renderAll()">
+          <option value="open">Open personnel only</option>
+          <option value="all">Include closed personnel</option>
+          <option value="closed">Closed personnel only</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>&nbsp;</label>
+        <button onclick="openModal('personModal')">Add person</button>
+      </div>
+    </div>
+    <div class="notice">
+      The main page stays intentionally simple. Use the expand buttons on each row to review incident notes, exposure factors, and detailed history.
+    </div>
+  </div>
+
+  <div class="panel table-panel">
+    <div class="table-head">
+      <div>
+        <h3 style="margin:0">Personnel Overview</h3>
+        <div class="tagline">Expandable records, close/reopen workflow, and individually removable incidents</div>
+      </div>
+      <div class="help" id="resultCount">0 results</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th>Name</th>
+          <th>Job Title</th>
+          <th>Area</th>
+          <th>Incidents</th>
+          <th>Risk Score</th>
+          <th>RAG</th>
+          <th>Status</th>
+          <th>Last Incident</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+  <div class="status-bar" id="statusBar">Ready.</div>
+</div>
+
+<div class="modal" id="settingsModal">
+  <div class="modal-content">
+    <div class="modal-head">
+      <div>
+        <div class="section-title" style="margin:0 0 4px 0">Risk Scoring Matrix</div>
+        <div class="help">Adjust scores and switch factors on or off. Changes recalculate the whole dashboard immediately.</div>
+      </div>
+      <button class="ghost" onclick="closeModal('settingsModal')">Close</button>
+    </div>
+
+    <div class="panel" style="padding:12px">
+      <div class="scoring-toggle" onclick="toggleScoringPanel()">
+        <div>
+          <strong>Scoring configuration</strong>
+          <div class="help">Collapsed by default to keep the dashboard clean.</div>
+        </div>
+        <div id="scoringToggleIcon">►</div>
+      </div>
+      <div class="scoring-body" id="scoringBody">
+        <div class="scoring-grid" style="font-weight:800;color:#beddff;margin-bottom:8px">
+          <div>Factor</div><div>Score</div><div>Enabled</div>
+        </div>
+        <div id="scoringRows"></div>
+        <div class="footer-actions">
+          <button class="secondary" onclick="resetScoring()">Reset to defaults</button>
+          <button onclick="saveScoring()">Save scoring matrix</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="notice">
+      Included factors: severity, repeat exposure windows, on shift, direct involvement, witnessed scene, body recovery, indirect exposure, multiple casualties, media interest, colleague involved, and child involved.
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="personModal">
+  <div class="modal-content">
+    <div class="modal-head">
+      <div>
+        <div class="section-title" style="margin:0 0 4px 0">Add Personnel</div>
+        <div class="help">Area uses the same controlled dropdown as the dashboard filter.</div>
+      </div>
+      <button class="ghost" onclick="closeModal('personModal')">Close</button>
+    </div>
+    <div class="row3">
+      <div>
+        <label>Full name</label>
+        <input id="pName" placeholder="Enter full name">
+      </div>
+      <div>
+        <label>Job title</label>
+        <select id="pJob"></select>
+      </div>
+      <div>
+        <label>Area</label>
+        <select id="pArea"></select>
+      </div>
+    </div>
+    <div class="row2">
+      <div>
+        <label>Manual score override</label>
+        <input id="pOverride" type="number" value="0">
+        <div class="help">Use only where a local welfare decision needs a manual adjustment.</div>
+      </div>
+      <div>
+        <label>Status</label>
+        <input value="open" disabled>
+      </div>
+    </div>
+    <label>Notes</label>
+    <textarea id="pNotes" rows="4" placeholder="Optional personnel notes"></textarea>
+    <div class="footer-actions">
+      <button class="ghost" onclick="closeModal('personModal')">Cancel</button>
+      <button onclick="addPerson()">Save person</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="incidentModal">
+  <div class="modal-content">
+    <div class="modal-head">
+      <div>
+        <div class="section-title" style="margin:0 0 4px 0">Add Incident</div>
+        <div class="help">Detailed factors feed the TRiM exposure score automatically.</div>
+      </div>
+      <button class="ghost" onclick="closeModal('incidentModal')">Close</button>
+    </div>
+
+    <input id="iPersonId" type="hidden">
+
+    <div class="row3">
+      <div>
+        <label>Date</label>
+        <input id="iDate" type="date">
+      </div>
+      <div>
+        <label>Incident type</label>
+        <select id="iType"></select>
+      </div>
+      <div>
+        <label>Severity</label>
+        <select id="iSeverity"></select>
+      </div>
+    </div>
+
+    <div class="row2">
+      <div>
+        <label>Proximity</label>
+        <select id="iProximity">
+          <option>Direct</option>
+          <option>Close proximity</option>
+          <option>Indirect</option>
+        </select>
+      </div>
+      <div></div>
+    </div>
+
+    <div class="section-title">Exposure Factors</div>
+    <div class="row3">
+      <label><input type="checkbox" id="fOnShift"> On shift</label>
+      <label><input type="checkbox" id="fDirectlyInvolved"> Directly involved</label>
+      <label><input type="checkbox" id="fWitnessedScene"> Witnessed scene</label>
+      <label><input type="checkbox" id="fBodyRecovery"> Body recovery involvement</label>
+      <label><input type="checkbox" id="fLineOfSightOnly"> Indirect / line of sight only</label>
+      <label><input type="checkbox" id="fMultiFatality"> Multiple casualties / fatalities</label>
+      <label><input type="checkbox" id="fMediaInterest"> Media interest</label>
+      <label><input type="checkbox" id="fColleagueInvolved"> Colleague involved</label>
+      <label><input type="checkbox" id="fChildInvolved"> Child involved</label>
+    </div>
+
+    <label>Description / notes</label>
+    <textarea id="iDescription" rows="5" placeholder="Incident notes visible in the expandable history"></textarea>
+
+    <div class="footer-actions">
+      <button class="ghost" onclick="closeModal('incidentModal')">Cancel</button>
+      <button onclick="saveIncident()">Save incident</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="overrideModal">
+  <div class="modal-content" style="max-width:520px">
+    <div class="modal-head">
+      <div>
+        <div class="section-title" style="margin:0 0 4px 0">Adjust Manual Override</div>
+        <div class="help">Positive values increase the score. Negative values reduce it.</div>
+      </div>
+      <button class="ghost" onclick="closeModal('overrideModal')">Close</button>
+    </div>
+    <input id="overridePersonId" type="hidden">
+    <label>Override value</label>
+    <input id="overrideValue" type="number">
+    <div class="footer-actions">
+      <button class="ghost" onclick="closeModal('overrideModal')">Cancel</button>
+      <button onclick="saveOverride()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEYS = {
+  personnel: 'trim_pro_personnel_v1',
+  incidents: 'trim_pro_incidents_v1',
+  scoring: 'trim_pro_scoring_v1'
+};
+
+const JOB_TITLES = ['MOM','LOM','Signaller','SSM','IC','TRC','RCM','SNDM'];
+const AREAS = ['EMCC (Derby)','West Hampstead','Bedford','Leicester','Kettering','Nottingham','Derby','Elstree','Kentish Town','Chesterfield'];
+const INCIDENT_TYPES = ['Fatality','Suicide Attempt','Person Struck by Train','Serious Injury','Major Operational Incident','Near Miss','Other'];
+const SEVERITIES = ['Low','Moderate','High','Critical'];
+
+const DEFAULT_SCORING = [
+  { key:'severity_low', label:'Severity: Low', score:1, enabled:true, order:10 },
+  { key:'severity_moderate', label:'Severity: Moderate', score:3, enabled:true, order:20 },
+  { key:'severity_high', label:'Severity: High', score:6, enabled:true, order:30 },
+  { key:'severity_critical', label:'Severity: Critical', score:10, enabled:true, order:40 },
+  { key:'within_30_days', label:'Repeat exposure within 30 days', score:5, enabled:true, order:50 },
+  { key:'within_90_days', label:'Repeat exposure within 90 days', score:3, enabled:true, order:60 },
+  { key:'on_shift', label:'On shift at time of incident', score:1, enabled:true, order:70 },
+  { key:'directly_involved', label:'Directly involved', score:4, enabled:true, order:80 },
+  { key:'witnessed_scene', label:'Witnessed scene at close proximity', score:3, enabled:true, order:90 },
+  { key:'body_recovery', label:'Body recovery / body management involvement', score:5, enabled:true, order:100 },
+  { key:'line_of_sight_only', label:'Line of sight only / indirect exposure', score:1, enabled:true, order:110 },
+  { key:'multi_fatality', label:'Multiple casualties / fatalities', score:5, enabled:true, order:120 },
+  { key:'media_interest', label:'Significant media interest', score:2, enabled:true, order:130 },
+  { key:'colleague_involved', label:'Colleague known to staff involved', score:3, enabled:true, order:140 },
+  { key:'child_involved', label:'Child involved', score:4, enabled:true, order:150 }
+];
+
+let personnel = [];
+let incidents = [];
+let scoring = [];
+let expandedRows = new Set();
+
+function notify(message){
+  document.getElementById('statusBar').textContent = message;
+}
+function uid(){
+  return crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+}
+function saveState(){
+  localStorage.setItem(STORAGE_KEYS.personnel, JSON.stringify(personnel));
+  localStorage.setItem(STORAGE_KEYS.incidents, JSON.stringify(incidents));
+  localStorage.setItem(STORAGE_KEYS.scoring, JSON.stringify(scoring));
+}
+function loadState(){
+  try{
+    personnel = JSON.parse(localStorage.getItem(STORAGE_KEYS.personnel) || '[]');
+    incidents = JSON.parse(localStorage.getItem(STORAGE_KEYS.incidents) || '[]');
+    scoring = JSON.parse(localStorage.getItem(STORAGE_KEYS.scoring) || 'null') || structuredClone(DEFAULT_SCORING);
+  }catch{
+    personnel = [];
+    incidents = [];
+    scoring = structuredClone(DEFAULT_SCORING);
+  }
+}
+function structuredClone(obj){
+  return JSON.parse(JSON.stringify(obj));
+}
+function openModal(id){ document.getElementById(id).style.display = 'flex'; }
+function closeModal(id){ document.getElementById(id).style.display = 'none'; }
+function toggleScoringPanel(){
+  const body = document.getElementById('scoringBody');
+  const icon = document.getElementById('scoringToggleIcon');
+  const isOpen = body.style.display === 'block';
+  body.style.display = isOpen ? 'none' : 'block';
+  icon.textContent = isOpen ? '►' : '▼';
+}
+function populateStaticOptions(){
+  const pJob = document.getElementById('pJob');
+  const pArea = document.getElementById('pArea');
+  const iType = document.getElementById('iType');
+  const iSeverity = document.getElementById('iSeverity');
+  const filterArea = document.getElementById('filterArea');
+  const filterIncident = document.getElementById('filterIncident');
+
+  pJob.innerHTML = JOB_TITLES.map(x => `<option>${x}</option>`).join('');
+  pArea.innerHTML = AREAS.map(x => `<option>${x}</option>`).join('');
+  iType.innerHTML = INCIDENT_TYPES.map(x => `<option>${x}</option>`).join('');
+  iSeverity.innerHTML = SEVERITIES.map(x => `<option>${x}</option>`).join('');
+  filterArea.innerHTML = `<option value="">All areas</option>` + AREAS.map(x => `<option>${x}</option>`).join('');
+  filterIncident.innerHTML = `<option value="">All incident types</option>` + INCIDENT_TYPES.map(x => `<option>${x}</option>`).join('');
+}
+function scoringMap(){
+  const map = {};
+  scoring.forEach(item => map[item.key] = item);
+  return map;
+}
+function computeIncidentScore(incident){
+  const map = scoringMap();
+  let total = 0;
+  const sevKey = `severity_${String(incident.severity || '').toLowerCase()}`;
+  if (map[sevKey]?.enabled) total += Number(map[sevKey].score || 0);
+  if (incident.on_shift && map.on_shift?.enabled) total += Number(map.on_shift.score || 0);
+  if (incident.directly_involved && map.directly_involved?.enabled) total += Number(map.directly_involved.score || 0);
+  if (incident.witnessed_scene && map.witnessed_scene?.enabled) total += Number(map.witnessed_scene.score || 0);
+  if (incident.body_recovery && map.body_recovery?.enabled) total += Number(map.body_recovery.score || 0);
+  if (incident.line_of_sight_only && map.line_of_sight_only?.enabled) total += Number(map.line_of_sight_only.score || 0);
+  if (incident.multi_fatality && map.multi_fatality?.enabled) total += Number(map.multi_fatality.score || 0);
+  if (incident.media_interest && map.media_interest?.enabled) total += Number(map.media_interest.score || 0);
+  if (incident.colleague_involved && map.colleague_involved?.enabled) total += Number(map.colleague_involved.score || 0);
+  if (incident.child_involved && map.child_involved?.enabled) total += Number(map.child_involved.score || 0);
+  return total;
+}
+function computeRepeatBonus(personIncidents){
+  const map = scoringMap();
+  let bonus = 0;
+  const sorted = [...personIncidents].sort((a,b)=>new Date(a.incident_date)-new Date(b.incident_date));
+  for(let i=0;i<sorted.length;i++){
+    for(let j=i+1;j<sorted.length;j++){
+      const diff = Math.abs(new Date(sorted[j].incident_date)-new Date(sorted[i].incident_date))/86400000;
+      if(diff <= 30 && map.within_30_days?.enabled) bonus += Number(map.within_30_days.score || 0);
+      else if(diff <= 90 && map.within_90_days?.enabled) bonus += Number(map.within_90_days.score || 0);
+    }
+  }
+  return bonus;
+}
+function ragFor(score){
+  if(score >= 20) return 'Red';
+  if(score >= 10) return 'Amber';
+  return 'Green';
+}
+function computedPersonnel(){
+  return personnel.map(person => {
+    const personIncidents = incidents
+      .filter(i => i.person_id === person.id)
+      .sort((a,b)=>new Date(b.incident_date)-new Date(a.incident_date));
+    const base = personIncidents.reduce((sum, i)=>sum + computeIncidentScore(i), 0);
+    const bonus = computeRepeatBonus(personIncidents);
+    const total = base + bonus + Number(person.manual_override || 0);
+    return {
+      ...person,
+      incidents: personIncidents,
+      total_incidents: personIncidents.length,
+      risk_score: total,
+      rag_status: ragFor(total),
+      last_incident_date: personIncidents[0]?.incident_date || null
+    };
+  }).sort((a,b)=>a.full_name.localeCompare(b.full_name));
+}
+function filteredPersonnel(){
+  const search = document.getElementById('searchName').value.trim().toLowerCase();
+  const rag = document.getElementById('filterRag').value;
+  const incidentType = document.getElementById('filterIncident').value;
+  const area = document.getElementById('filterArea').value;
+  const status = document.getElementById('filterStatus').value;
+
+  return computedPersonnel().filter(person => {
+    if(search && !person.full_name.toLowerCase().includes(search)) return false;
+    if(rag && person.rag_status !== rag) return false;
+    if(area && person.area !== area) return false;
+    if(status === 'open' && person.status !== 'open') return false;
+    if(status === 'closed' && person.status !== 'closed') return false;
+    if(incidentType && !person.incidents.some(i => i.incident_type === incidentType)) return false;
+    return true;
+  });
+}
+function renderMetricsAndOverview(){
+  const all = computedPersonnel();
+  const open = all.filter(x => x.status === 'open');
+  const amber = open.filter(x => x.rag_status === 'Amber').length;
+  const red = open.filter(x => x.rag_status === 'Red').length;
+
+  document.getElementById('metricOpen').textContent = open.length;
+  document.getElementById('metricIncidents').textContent = incidents.length;
+  document.getElementById('metricAmber').textContent = amber;
+  document.getElementById('metricRed').textContent = red;
+
+  const highRisk = open.filter(x=>x.rag_status === 'Red').map(x=>`${x.full_name} (${x.risk_score})`);
+  const recentExposure = open.filter(x=>x.incidents.some(i => Math.abs((Date.now()-new Date(i.incident_date))/86400000) <= 30)).map(x=>x.full_name);
+  const multiExposure = open.filter(x=>x.total_incidents >= 3).map(x=>`${x.full_name} (${x.total_incidents})`);
+
+  const breakdown = {};
+  incidents.forEach(i => breakdown[i.incident_type] = (breakdown[i.incident_type] || 0) + 1);
+  const breakdownEntries = Object.entries(breakdown).sort((a,b)=>b[1]-a[1]);
+
+  renderList('highRiskList', highRisk);
+  renderList('recentExposureList', recentExposure);
+  renderList('multiExposureList', multiExposure);
+  renderList('incidentBreakdownList', breakdownEntries.map(([k,v]) => `${k}: ${v}`));
+}
+function renderList(id, items){
+  const el = document.getElementById(id);
+  if(!items.length){
+    el.innerHTML = `<div class="overview-item muted">None</div>`;
+    return;
+  }
+  el.innerHTML = items.map(item => `<div class="overview-item">${escapeHtml(item)}</div>`).join('');
+}
+function renderScoringRows(){
+  const rows = scoring
+    .sort((a,b)=>a.order-b.order)
+    .map(item => `
+      <div class="scoring-grid" style="margin-bottom:10px">
+        <div>
+          <div style="font-weight:800">${escapeHtml(item.label)}</div>
+          <div class="help">${escapeHtml(item.key)}</div>
+        </div>
+        <div><input type="number" id="score_${escapeHtml(item.key)}" value="${Number(item.score)}"></div>
+        <div>
+          <select id="enabled_${escapeHtml(item.key)}">
+            <option value="true" ${item.enabled ? 'selected' : ''}>On</option>
+            <option value="false" ${!item.enabled ? 'selected' : ''}>Off</option>
+          </select>
+        </div>
+      </div>
+    `).join('');
+  document.getElementById('scoringRows').innerHTML = rows;
+}
+function renderTable(){
+  const rows = filteredPersonnel();
+  document.getElementById('resultCount').textContent = `${rows.length} result${rows.length === 1 ? '' : 's'}`;
+  const tbody = document.getElementById('tableBody');
+  if(!rows.length){
+    tbody.innerHTML = `<tr><td colspan="10" class="empty-state">No personnel match the current filters.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(person => {
+    const ragClass = person.rag_status.toLowerCase();
+    const detailOpen = expandedRows.has(person.id);
+    return `
+      <tr class="${person.status === 'closed' ? 'closed-row' : ''}">
+        <td><span class="expand" onclick="toggleRow('${person.id}', this)">${detailOpen ? '−' : '+'}</span></td>
+        <td>
+          <div style="font-weight:800">${escapeHtml(person.full_name)}</div>
+          ${person.notes ? `<div class="help">${escapeHtml(person.notes)}</div>` : ''}
+        </td>
+        <td>${escapeHtml(person.job_title)}</td>
+        <td>${escapeHtml(person.area)}</td>
+        <td>${person.total_incidents}</td>
+        <td>${person.risk_score}</td>
+        <td><span class="badge ${ragClass}">${escapeHtml(person.rag_status)}</span></td>
+        <td><span class="badge ${person.status === 'closed' ? 'closed' : 'green'}">${person.status === 'closed' ? 'Closed' : 'Open'}</span></td>
+        <td>${person.last_incident_date ? escapeHtml(person.last_incident_date) : '-'}</td>
+        <td>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="secondary" onclick="openIncidentForPerson('${person.id}')">Add incident</button>
+            <button class="ghost" onclick="openOverrideModalFor('${person.id}', ${Number(person.manual_override || 0)})">Override</button>
+            <button class="${person.status === 'open' ? 'warn' : 'success'}" onclick="togglePersonStatus('${person.id}')">${person.status === 'open' ? 'Close' : 'Reopen'}</button>
+          </div>
+        </td>
+      </tr>
+      <tr id="detail-${person.id}" class="${detailOpen ? '' : 'hidden'}">
+        <td colspan="10">
+          <div class="row2">
+            <div>
+              <div class="section-title">Personnel Notes</div>
+              <div class="person-notes">${person.notes ? escapeHtml(person.notes) : '<span class="muted">No personnel notes recorded.</span>'}</div>
+            </div>
+            <div>
+              <div class="section-title">Manual Override</div>
+              <div class="person-notes">${Number(person.manual_override || 0)}</div>
+            </div>
+          </div>
+          <div class="section-title">Incident History</div>
+          ${person.incidents.length ? person.incidents.map(incident => `
+            <div class="incident-box">
+              <div class="incident-title">${escapeHtml(incident.incident_date)} — ${escapeHtml(incident.incident_type)} (${escapeHtml(incident.severity)})</div>
+              <div>${escapeHtml(incident.description || 'No notes recorded.')}</div>
+              <div class="flag-wrap">
+                ${incident.on_shift ? '<span class="flag">On shift</span>' : ''}
+                ${incident.directly_involved ? '<span class="flag">Directly involved</span>' : ''}
+                ${incident.witnessed_scene ? '<span class="flag">Witnessed scene</span>' : ''}
+                ${incident.body_recovery ? '<span class="flag">Body recovery</span>' : ''}
+                ${incident.line_of_sight_only ? '<span class="flag">Indirect exposure</span>' : ''}
+                ${incident.multi_fatality ? '<span class="flag">Multiple casualties</span>' : ''}
+                ${incident.media_interest ? '<span class="flag">Media interest</span>' : ''}
+                ${incident.colleague_involved ? '<span class="flag">Colleague involved</span>' : ''}
+                ${incident.child_involved ? '<span class="flag">Child involved</span>' : ''}
+                <span class="flag">${escapeHtml(incident.proximity_category || 'Indirect')}</span>
+              </div>
+              <div class="footer-actions" style="margin-top:10px">
+                <button class="danger" onclick="removeIncident('${incident.id}')">Remove incident</button>
+              </div>
+            </div>
+          `).join('') : `<div class="empty-state">No incidents recorded for this person.</div>`}
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+function renderAll(){
+  renderMetricsAndOverview();
+  renderTable();
+}
+function escapeHtml(value=''){
+  return String(value)
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'",'&#39;');
+}
+function addPerson(){
+  const full_name = document.getElementById('pName').value.trim();
+  const job_title = document.getElementById('pJob').value;
+  const area = document.getElementById('pArea').value;
+  const manual_override = Number(document.getElementById('pOverride').value || 0);
+  const notes = document.getElementById('pNotes').value.trim();
+
+  if(!full_name){
+    notify('Enter a name before saving.');
+    return;
+  }
+
+  personnel.push({
+    id: uid(),
+    full_name,
+    job_title,
+    area,
+    notes,
+    status: 'open',
+    manual_override,
+    created_at: new Date().toISOString()
+  });
+
+  saveState();
+  closeModal('personModal');
+  clearPersonForm();
+  renderAll();
+  notify(`Saved ${full_name}.`);
+}
+function clearPersonForm(){
+  document.getElementById('pName').value = '';
+  document.getElementById('pOverride').value = '0';
+  document.getElementById('pNotes').value = '';
+  document.getElementById('pJob').selectedIndex = 0;
+  document.getElementById('pArea').selectedIndex = 0;
+}
+function openIncidentForPerson(personId){
+  document.getElementById('iPersonId').value = personId;
+  document.getElementById('iDate').value = new Date().toISOString().slice(0,10);
+  document.getElementById('iDescription').value = '';
+  document.getElementById('iType').selectedIndex = 0;
+  document.getElementById('iSeverity').selectedIndex = 0;
+  document.getElementById('iProximity').selectedIndex = 0;
+  ['fOnShift','fDirectlyInvolved','fWitnessedScene','fBodyRecovery','fLineOfSightOnly','fMultiFatality','fMediaInterest','fColleagueInvolved','fChildInvolved'].forEach(id => {
+    document.getElementById(id).checked = false;
+  });
+  openModal('incidentModal');
+}
+function saveIncident(){
+  const person_id = document.getElementById('iPersonId').value;
+  if(!person_id){
+    notify('Select a person before adding an incident.');
+    return;
+  }
+  incidents.push({
+    id: uid(),
+    person_id,
+    incident_date: document.getElementById('iDate').value,
+    incident_type: document.getElementById('iType').value,
+    severity: document.getElementById('iSeverity').value,
+    proximity_category: document.getElementById('iProximity').value,
+    description: document.getElementById('iDescription').value.trim(),
+    on_shift: document.getElementById('fOnShift').checked,
+    directly_involved: document.getElementById('fDirectlyInvolved').checked,
+    witnessed_scene: document.getElementById('fWitnessedScene').checked,
+    body_recovery: document.getElementById('fBodyRecovery').checked,
+    line_of_sight_only: document.getElementById('fLineOfSightOnly').checked,
+    multi_fatality: document.getElementById('fMultiFatality').checked,
+    media_interest: document.getElementById('fMediaInterest').checked,
+    colleague_involved: document.getElementById('fColleagueInvolved').checked,
+    child_involved: document.getElementById('fChildInvolved').checked,
+    created_at: new Date().toISOString()
+  });
+
+  saveState();
+  closeModal('incidentModal');
+  renderAll();
+  notify('Incident added.');
+}
+function removeIncident(id){
+  if(!confirm('Remove this incident?')) return;
+  incidents = incidents.filter(i => i.id !== id);
+  saveState();
+  renderAll();
+  notify('Incident removed.');
+}
+function togglePersonStatus(personId){
+  const person = personnel.find(p => p.id === personId);
+  if(!person) return;
+  person.status = person.status === 'open' ? 'closed' : 'open';
+  saveState();
+  renderAll();
+  notify(`Person ${person.status}.`);
+}
+function openOverrideModalFor(personId, current){
+  document.getElementById('overridePersonId').value = personId;
+  document.getElementById('overrideValue').value = current;
+  openModal('overrideModal');
+}
+function saveOverride(){
+  const personId = document.getElementById('overridePersonId').value;
+  const person = personnel.find(p => p.id === personId);
+  if(!person) return;
+  person.manual_override = Number(document.getElementById('overrideValue').value || 0);
+  saveState();
+  closeModal('overrideModal');
+  renderAll();
+  notify('Manual override updated.');
+}
+function toggleRow(personId, el){
+  const detail = document.getElementById(`detail-${personId}`);
+  if(expandedRows.has(personId)){
+    expandedRows.delete(personId);
+    detail.classList.add('hidden');
+    el.textContent = '+';
+  }else{
+    expandedRows.add(personId);
+    detail.classList.remove('hidden');
+    el.textContent = '−';
+  }
+}
+function saveScoring(){
+  scoring = scoring.map(item => ({
+    ...item,
+    score: Number(document.getElementById(`score_${item.key}`).value || 0),
+    enabled: document.getElementById(`enabled_${item.key}`).value === 'true'
+  }));
+  saveState();
+  renderAll();
+  notify('Scoring matrix saved.');
+}
+function resetScoring(){
+  if(!confirm('Reset scoring matrix to defaults?')) return;
+  scoring = structuredClone(DEFAULT_SCORING);
+  saveState();
+  renderScoringRows();
+  renderAll();
+  notify('Scoring matrix reset to defaults.');
+}
+function exportBackup(){
+  const payload = {
+    exported_at: new Date().toISOString(),
+    personnel,
+    incidents,
+    scoring
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'em_route_operations_trim_dashboard_backup.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  notify('Backup exported.');
+}
+function importBackup(event){
+  const file = event.target.files && event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const data = JSON.parse(reader.result);
+      personnel = Array.isArray(data.personnel) ? data.personnel : [];
+      incidents = Array.isArray(data.incidents) ? data.incidents : [];
+      scoring = Array.isArray(data.scoring) ? data.scoring : structuredClone(DEFAULT_SCORING);
+      saveState();
+      renderScoringRows();
+      renderAll();
+      notify('Backup imported successfully.');
+    }catch{
+      notify('Import failed. Check the backup file format.');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+loadState();
+populateStaticOptions();
+renderScoringRows();
+renderAll();
+notify('Dashboard loaded.');
 </script>
 </body>
 </html>
